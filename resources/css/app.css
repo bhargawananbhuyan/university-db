@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.base-form {
+  @apply mt-5 grid gap-y-3 max-w-sm w-full [&>div]:grid [&>div]:gap-y-1 [&>div>input]:border 
+  [&>div>input]:p-2 [&>div>input]:rounded-md [&>div>textarea]:border [&>div>textarea]:rounded-md [&>div>textarea]:p-2
+  [&>div>textarea]:resize-none [&>button[type='submit']]:bg-gray-950 [&>button[type='submit']]:text-white
+  [&>button[type='submit']]:rounded [&>button[type='submit']]:text-sm [&>button[type='submit']]:font-medium
+  [&>button[type='submit']]:p-2.5 [&>button[type='submit']]:hover:shadow [&>div>small]:text-red-500
+  [&>div>label]:text-sm [&>div>select]:border [&>div>select]:p-2 [&>div>select]:rounded;
+}
+
+input,
+select,
+textarea {
+  @apply outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2;
+}
+
+.base-table {
+  @apply w-full table-fixed text-left;
+}
+
+.base-table th,
+.base-table td {
+  @apply border px-4 py-2;
+}
+
+.from-user {
+  @apply self-start bg-gray-500 text-white p-2 rounded;
+}
+
+.to-user {
+  @apply self-end bg-gray-200 p-2 rounded;
+}

@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model contact_queries {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  email      String    @db.VarChar(255)
+  query      String    @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model courses {
+  id              BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  name            String            @db.VarChar(255)
+  description     String?           @db.Text
+  instructor_id   BigInt            @db.UnsignedBigInt
+  created_at      DateTime?         @db.Timestamp(0)
+  updated_at      DateTime?         @db.Timestamp(0)
+  users           users             @relation(fields: [instructor_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "courses_instructor_id_foreign")
+  exams           exams[]
+  student_courses student_courses[]
+
+  @@index([instructor_id], map: "courses_instructor_id_foreign")
+}
+
+model exams {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  course_id     BigInt          @db.UnsignedBigInt
+  title         String          @db.VarChar(255)
+  total_marks   Float
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  courses       courses         @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "exams_course_id_foreign")
+  student_exams student_exams[]
+
+  @@index([course_id], map: "exams_course_id_foreign")
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String   @db.Text
+  queue      String   @db.Text
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model feedback {
+  id                            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  subject                       String    @db.VarChar(255)
+  details                       String    @db.Text
+  from_id                       BigInt    @db.UnsignedBigInt
+  to_id                         BigInt    @db.UnsignedBigInt
+  reply                         String?   @db.Text
+  created_at                    DateTime? @db.Timestamp(0)
+  updated_at                    DateTime? @db.Timestamp(0)
+  users_feedback_from_idTousers users     @relation("feedback_from_idTousers", fields: [from_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "feedback_from_id_foreign")
+  users_feedback_to_idTousers   users     @relation("feedback_to_idTousers", fields: [to_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "feedback_to_id_foreign")
+
+  @@index([from_id], map: "feedback_from_id_foreign")
+  @@index([to_id], map: "feedback_to_id_foreign")
+}
+
+model messages {
+  id                              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  from_user                       BigInt    @db.UnsignedBigInt
+  to_user                         BigInt    @db.UnsignedBigInt
+  content                         String    @db.Text
+  created_at                      DateTime? @db.Timestamp(0)
+  updated_at                      DateTime? @db.Timestamp(0)
+  users_messages_from_userTousers users     @relation("messages_from_userTousers", fields: [from_user], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "messages_from_user_foreign")
+  users_messages_to_userTousers   users     @relation("messages_to_userTousers", fields: [to_user], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "messages_to_user_foreign")
+
+  @@index([from_user], map: "messages_from_user_foreign")
+  @@index([to_user], map: "messages_to_user_foreign")
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model password_reset_tokens {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model policies {
+  id         BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  for_role   policies_for_role
+  content    String            @db.Text
+  added_by   BigInt            @db.UnsignedBigInt
+  created_at DateTime?         @db.Timestamp(0)
+  updated_at DateTime?         @db.Timestamp(0)
+  users      users             @relation(fields: [added_by], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "policies_added_by_foreign")
+
+  @@index([added_by], map: "policies_added_by_foreign")
+}
+
+model student_courses {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  course_id  BigInt    @db.UnsignedBigInt
+  student_id BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  courses    courses   @relation(fields: [course_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "student_courses_course_id_foreign")
+  users      users     @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "student_courses_student_id_foreign")
+
+  @@index([course_id], map: "student_courses_course_id_foreign")
+  @@index([student_id], map: "student_courses_student_id_foreign")
+}
+
+model student_exams {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  exam_id       BigInt    @db.UnsignedBigInt
+  student_id    BigInt    @db.UnsignedBigInt
+  marks_secured Float?
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+  exams         exams     @relation(fields: [exam_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "student_exams_exam_id_foreign")
+  users         users     @relation(fields: [student_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "student_exams_student_id_foreign")
+
+  @@index([exam_id], map: "student_exams_exam_id_foreign")
+  @@index([student_id], map: "student_exams_student_id_foreign")
+}
+
+model users {
+  id                                 BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  name                               String            @db.VarChar(255)
+  email                              String            @unique(map: "users_email_unique") @db.VarChar(255)
+  email_verified_at                  DateTime?         @db.Timestamp(0)
+  password                           String            @db.VarChar(255)
+  two_factor_secret                  String?           @db.Text
+  two_factor_recovery_codes          String?           @db.Text
+  two_factor_confirmed_at            DateTime?         @db.Timestamp(0)
+  remember_token                     String?           @db.VarChar(100)
+  created_at                         DateTime?         @db.Timestamp(0)
+  updated_at                         DateTime?         @db.Timestamp(0)
+  role                               users_role
+  contact                            String?           @db.VarChar(255)
+  blocked                            Boolean           @default(false)
+  courses                            courses[]
+  feedback_feedback_from_idTousers   feedback[]        @relation("feedback_from_idTousers")
+  feedback_feedback_to_idTousers     feedback[]        @relation("feedback_to_idTousers")
+  messages_messages_from_userTousers messages[]        @relation("messages_from_userTousers")
+  messages_messages_to_userTousers   messages[]        @relation("messages_to_userTousers")
+  policies                           policies[]
+  student_courses                    student_courses[]
+  student_exams                      student_exams[]
+}
+
+enum policies_for_role {
+  student
+  instructor
+}
+
+enum users_role {
+  student
+  instructor
+  program_coordinator
+  quality_assurance_officer
+  administrator
+}
